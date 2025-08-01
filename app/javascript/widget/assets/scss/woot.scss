@@ -380,3 +380,7 @@ blockquote {
     --white-alpha: 255, 255, 255, 0.1;
   }
 }
+
+:root {
+  --heroui-background: unset !important;
+}

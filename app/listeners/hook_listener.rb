@@ -13,12 +13,12 @@ class HookListener < BaseListener
 
   def contact_created(event)
     contact = extract_contact_and_account(event)[0]
-    execute_account_hooks(event, contact.account, contact: contact)
+    execute_hooks(event, contact)
   end
 
   def contact_updated(event)
     contact = extract_contact_and_account(event)[0]
-    execute_account_hooks(event, contact.account, contact: contact)
+    execute_hooks(event, contact)
   end
 
   def conversation_created(event)

@@ -102,26 +102,43 @@ const getters = {
       return isUnAssigned && shouldFilter;
     });
   },
-  getAllStatusChats: (_state, _, __, rootGetters) => activeFilters => {
-    const currentUser = rootGetters.getCurrentUser;
-    const currentUserId = rootGetters.getCurrentUser.id;
-    const currentAccountId = rootGetters.getCurrentAccountId;
-
-    const permissions = getUserPermissions(currentUser, currentAccountId);
-    const userRole = getUserRole(currentUser, currentAccountId);
-
+  getAIManagedChats: _state => activeFilters => {
     return _state.allConversations.filter(conversation => {
+      const isUnAssigned = !conversation.meta.assignee;
+      const isAIManagedStatus = ['pending', 'resolved'].includes(conversation.status);
       const shouldFilter = applyPageFilters(conversation, activeFilters);
-      const allowedForRole = applyRoleFilter(
-        conversation,
-        userRole,
-        permissions,
-        currentUserId
-      );
-
-      return shouldFilter && allowedForRole;
+      return isUnAssigned && isAIManagedStatus && shouldFilter;
     });
   },
+  getAIEscalationChats: _state => activeFilters => {
+    return _state.allConversations.filter(conversation => {
+      const isUnAssigned = !conversation.meta.assignee;
+      const isEscalationStatus = conversation.status === 'open';
+      const shouldFilter = applyPageFilters(conversation, activeFilters);
+      return isUnAssigned && isEscalationStatus && shouldFilter;
+    });
+  },
+  getAllStatusChats: _state => activeFilters => {
+    getAllStatusChats: (_state, _, __, rootGetters) => activeFilters => {
+        const currentUser = rootGetters.getCurrentUser;
+        const currentUserId = rootGetters.getCurrentUser.id;
+        const currentAccountId = rootGetters.getCurrentAccountId;
+
+        const permissions = getUserPermissions(currentUser, currentAccountId);
+        const userRole = getUserRole(currentUser, currentAccountId);
+
+        return _state.allConversations.filter(conversation => {
+          const shouldFilter = applyPageFilters(conversation, activeFilters);
+          const allowedForRole = applyRoleFilter(
+            conversation,
+            userRole,
+            permissions,
+            currentUserId
+          );
+
+          return shouldFilter && allowedForRole;
+        });
+      },
   getChatListLoadingStatus: ({ listLoadingStatus }) => listLoadingStatus,
   getAllMessagesLoaded(_state) {
     const [chat] = getSelectedChatConversation(_state);

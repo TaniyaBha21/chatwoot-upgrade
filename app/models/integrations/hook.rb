@@ -53,6 +53,10 @@ class Integrations::Hook < ApplicationRecord
     app_id == 'dialogflow'
   end
 
+  def hubspot?
+    app_id == 'hubspot'
+  end
+
   def notion?
     app_id == 'notion'
   end
@@ -64,7 +68,13 @@ class Integrations::Hook < ApplicationRecord
   def process_event(event)
     case app_id
     when 'openai'
-      Integrations::Openai::ProcessorService.new(hook: self, event: event).perform if app_id == 'openai'
+      Integrations::Openai::ProcessorService.new(hook: self, event: event).perform
+    when 'hubspot'
+      Integrations::Hubspot::ProcessorService.new(
+        event_name: event[:name],
+        hook: self,
+        event_data: event[:data]
+      ).perform
     else
       { error: 'No processor found' }
     end

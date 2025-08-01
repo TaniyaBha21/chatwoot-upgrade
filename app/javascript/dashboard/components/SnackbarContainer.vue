@@ -32,18 +32,21 @@ const onNewToastMessage = ({ message: originalMessage, action }) => {
   const message = action?.usei18n ? t(originalMessage) : originalMessage;
   const duration = action?.duration || props.duration;
 
-  snackMessages.value.push({
-    key: Date.now(),
-    message,
-    action,
-  });
-
-  nextTick(showPopover);
-
-  setTimeout(() => {
-    snackMessages.value.shift();
-  }, duration);
-};
+      this.snackMessages.push({
+        key: new Date().getTime(),
+        message,
+        action,
+      });
+      // Notify toast is visible
+      window.dispatchEvent(new CustomEvent('toast-visible', { detail: true }));
+      window.setTimeout(() => {
+        this.snackMessages.splice(0, 1);
+        // Notify toast is hidden if no more toasts
+        if (this.snackMessages.length === 0) {
+          window.dispatchEvent(new CustomEvent('toast-visible', { detail: false }));
+        }
+      }, duration);
+    };
 
 onMounted(() => {
   emitter.on('newToastMessage', onNewToastMessage);
